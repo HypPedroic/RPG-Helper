@@ -1,47 +1,31 @@
 
-import { useState } from "react";
 import { Link } from "react-router";
 import { Input } from "./input";
 import { ButtomConfirm } from "./buttonConfirm";
-import api from "../services/api";
+import { useRegisterValid } from "../hooks/RegisterValid";
 
-async function registerUser(userData) {
-    await api.post("/register", {
-        nome: userData.nome,
-        nickname: userData.nickname,
-        email: userData.email,
-        senha_hash: userData.password
-    })
-}
+
 
 export function FormsRegister() {
+    const {
+        nome, setNome,
+        nickname, setNickname,
+        email, setEmail,
+        password, setPassword,
+        confirmPassword, setConfirmPassword,
+        hasEmailError,
+        hasPasswordStrengthError,
+        hasPasswordConfirmError,
+        priorityWarning,
+        isFormValid,
+        isSubmitting,
+        handleRegister,
+    } = useRegisterValid();
 
-    const [nome, setNome] = useState("");
-    const [nickname, setNickname] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
-
-    const isEmailValid = (emailValue) => {
-        const atIndex = emailValue.indexOf("@");
-
-        if (atIndex <= 0) {
-            return false;
-        }
-
-        const domainPart = emailValue.slice(atIndex + 2);
-        return domainPart.includes(".");
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        await handleRegister();
     };
-
-    const isPasswordConfirmValid = (passwordValue, confirmPasswordValue) => {
-        return passwordValue === confirmPasswordValue;
-    };
-
-    const hasEmailError = email.trim() !== "" && !isEmailValid(email);
-
-    const hasPasswordConfirmError = confirmPassword.trim() !== "" && !isPasswordConfirmValid(password, confirmPassword);
-
-    const isFormValid = nome.trim() !== "" && nickname.trim() !== "" && email.trim() !== "" && isEmailValid(email) && password.trim() !== "" && confirmPassword.trim() !== "" && isPasswordConfirmValid(password, confirmPassword);
 
     return (
         <div className="space-y-6 bg-slate-900/80 backdrop-blur-xl border border-purple-500/30 p-10 rounded-2xl shadow-2xl shadow-purple-900/20 w-125">
@@ -53,9 +37,23 @@ export function FormsRegister() {
                     Crie sua conta para comecar a organizar suas campanhas.
                 </p>
 
-                <form className="space-y-4">
-                    <Input id="nome" label="Nome completo" placeholder="Seu nome completo" value={nome} onChange={(e) => setNome(e.target.value)} />
-                    <Input id="nickname" label="Nickname" placeholder="Seu nickname" value={nickname} onChange={(e) => setNickname(e.target.value)} />
+                {priorityWarning ? <p className="text-sm text-amber-300">{priorityWarning}</p> : null}
+
+                <form className="space-y-4" onSubmit={handleSubmit}>
+                    <Input 
+                        id="nome" 
+                        label="Nome completo" 
+                        placeholder="Seu nome completo" 
+                        value={nome} 
+                        onChange={(e) => setNome(e.target.value)} 
+                    />
+                    <Input 
+                        id="nickname" 
+                        label="Nickname" 
+                        placeholder="Seu nickname" 
+                        value={nickname} 
+                        onChange={(e) => setNickname(e.target.value)} 
+                    />
                     <Input
                         id="email"
                         label="E-mail"
@@ -64,15 +62,30 @@ export function FormsRegister() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         hasError={hasEmailError}
-                        errorMessage="E-mail inválido"
+                        errorMessage="E-mail invalido"
                     />
-                    <Input id="password" label="Senha" type="password" placeholder="********" value={password} onChange={(e) => setPassword(e.target.value)} />
-                    <Input id="confirm-password" label="Confirmar senha" type="password" placeholder="********" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} hasError={hasPasswordConfirmError} errorMessage="As senhas não coincidem" />
+                    <Input
+                        id="password"
+                        label="Senha"
+                        type="password"
+                        placeholder="********"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        hasError={hasPasswordStrengthError}
+                        errorMessage="Senha invalida: use pelo menos 8 caracteres"
+                    />
+                    <Input
+                        id="confirm-password"
+                        label="Confirmar senha"
+                        type="password"
+                        placeholder="********"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        hasError={hasPasswordConfirmError}
+                        errorMessage="As senhas nao coincidem"
+                    />
 
-                    <ButtomConfirm text="Registrar" disabled={!isFormValid} onClick={async () => {
-                        await registerUser({ nome, nickname, email, password });
-                        alert("Registro realizado com sucesso! Volte para a página de login para acessar sua conta.");
-                    }} />
+                    <ButtomConfirm text={isSubmitting ? "Registrando..." : "Registrar"} disabled={!isFormValid || isSubmitting} />
                 </form>
 
                 <p className="text-center text-sm text-slate-400">

@@ -1,37 +1,25 @@
 
-import { useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link } from "react-router";
 import { Input } from "./input";
 import { ButtomConfirm } from "./buttonConfirm";
-import api from "../services/api";
-
-async function loginUser(userData) {
-    const user = await api.post("/login", {
-        email: userData.email,
-        senha_hash: userData.password
-    });
-    return user;
-}
-
-
+import { useLoginValid } from "../hooks/LoginValid";
 
 export function FormsLogin() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const navigate = useNavigate();
+    const {
+        email,
+        setEmail,
+        password,
+        setPassword,
+        hasEmailError,
+        isFormValid,
+        isSubmitting,
+        handleLogin,
+    } = useLoginValid();
 
-    const isFormValid = email.trim() !== "" && password.trim() !== "";
-
-    async function handleLogin(userData) {
-        try {
-            const response = await loginUser({ email: userData.email, password: userData.password });
-            console.log("Login successful:", response.data);
-            navigate("/teste", { state: { user: response.data } });
-        } catch (error) {
-            console.error("Login failed:", error);
-            alert("Falha no login. Verifique e-mail e senha.");
-        }
-    }
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        await handleLogin();
+    };
 
     return (
         <div className="space-y-6 bg-slate-900/80 backdrop-blur-xl border border-purple-500/30 p-10 rounded-2xl shadow-2xl shadow-purple-900/20 w-125">
@@ -43,12 +31,28 @@ export function FormsLogin() {
                     Entre com suas credenciais para continuar sua aventura.
                 </p>
 
-                <form className="space-y-4">
+                <form className="space-y-4" onSubmit={handleSubmit}>
                     
-                    <Input id="email" label="E-mail" type="email" placeholder="seuemail@exemplo.com" value={email} onChange={(e) => setEmail(e.target.value)} />
-                    <Input id="password" label="Senha" type="password" placeholder="********" value={password} onChange={(e) => setPassword(e.target.value)} />
+                    <Input
+                        id="email"
+                        label="E-mail"
+                        type="email"
+                        placeholder="seuemail@exemplo.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        hasError={hasEmailError}
+                        errorMessage="E-mail invalido"
+                    />
+                    <Input
+                        id="password"
+                        label="Senha"
+                        type="password"
+                        placeholder="********"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
 
-                    <ButtomConfirm text="Entrar" disabled={!isFormValid} onClick={() => handleLogin({ email, password })} />
+                    <ButtomConfirm text={isSubmitting ? "Entrando..." : "Entrar"} disabled={!isFormValid || isSubmitting} />
                 </form>
 
                 <p className="text-center text-sm text-slate-400">
