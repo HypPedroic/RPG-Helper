@@ -63,6 +63,9 @@ export async function registerUser(nome, nickname, email, senha) {
         return newUser;
     } catch (error) {
         console.error("Error creating user:", error);
+        if (error.message === "User Already exists") {
+            throw error;
+        }
         throw new Error("Internal Server Error");
     }
 

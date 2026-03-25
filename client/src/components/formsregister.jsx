@@ -20,6 +20,8 @@ export function FormsRegister() {
         isFormValid,
         isSubmitting,
         handleRegister,
+        successMessage,
+        errorMessage,
     } = useRegisterValid();
 
     const handleSubmit = async (event) => {
@@ -37,7 +39,9 @@ export function FormsRegister() {
                     Crie sua conta para comecar a organizar suas campanhas.
                 </p>
 
-                {priorityWarning ? <p className="text-sm text-amber-300">{priorityWarning}</p> : null}
+                {successMessage && <p className="text-sm text-green-400 font-medium">{successMessage}</p>}
+                {errorMessage && <p className="text-sm text-red-400 font-medium">{errorMessage}</p>}
+                {priorityWarning && !successMessage && !errorMessage ? <p className="text-sm text-amber-300">{priorityWarning}</p> : null}
 
                 <form className="space-y-4" onSubmit={handleSubmit}>
                     <Input 

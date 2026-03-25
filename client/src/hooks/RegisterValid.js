@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { registerUser } from "../services/api";
 import { isEmailValid } from "../utils/utils";
 
@@ -17,6 +17,8 @@ export function useRegisterValid() {
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [successMessage, setSuccessMessage] = useState("");
+	const [errorMessage, setErrorMessage] = useState("");
 
 	const hasEmailError = email.trim() !== "" && !isEmailValid(email);
 	const hasPasswordStrengthError = password.trim() !== "" && !isPasswordStrong(password);
@@ -24,6 +26,22 @@ export function useRegisterValid() {
 
 	const isFormFilled = [nome, nickname, email, password, confirmPassword].every((field) => field.trim() !== "");
 	const isFormValid = isFormFilled && !hasEmailError && !hasPasswordStrengthError && !hasPasswordConfirmError;
+
+	// Limpar mensagens de sucesso após 5 segundos
+	useEffect(() => {
+		if (successMessage) {
+			const timer = setTimeout(() => setSuccessMessage(""), 5000);
+			return () => clearTimeout(timer);
+		}
+	}, [successMessage]);
+
+	// Limpar mensagens de erro após 5 segundos
+	useEffect(() => {
+		if (errorMessage) {
+			const timer = setTimeout(() => setErrorMessage(""), 5000);
+			return () => clearTimeout(timer);
+		}
+	}, [errorMessage]);
 
 	const priorityWarning = useMemo(() => {
 		if (hasEmailError) {
@@ -48,10 +66,19 @@ export function useRegisterValid() {
 
 		try {
 			setIsSubmitting(true);
+			setErrorMessage("");
 			await registerUser({ nome, nickname, email, password });
-			alert("Registro realizado com sucesso! Volte para a pagina de login para acessar sua conta.");
+			setSuccessMessage("Registro realizado com sucesso! Você será redirecionado em breve.");
+			// Limpar formulário após sucesso
+			setTimeout(() => {
+				setNome("");
+				setNickname("");
+				setEmail("");
+				setPassword("");
+				setConfirmPassword("");
+			}, 2000);
 		} catch (error) {
-			alert("Falha ao registrar. Tente novamente.");
+			setErrorMessage("Falha ao registrar. Tente novamente.");
 			console.error("Register failed:", error);
 		} finally {
 			setIsSubmitting(false);
@@ -71,6 +98,8 @@ export function useRegisterValid() {
 		isFormValid,
 		isSubmitting,
 		handleRegister,
+		successMessage,
+		errorMessage,
 	};
 }
 

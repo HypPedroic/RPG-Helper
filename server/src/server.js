@@ -1,5 +1,4 @@
 import dotenv from "dotenv";
-import userRouter from "./routes/userRoute.js";
 import app from "./app.js";
 
 dotenv.config();

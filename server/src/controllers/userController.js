@@ -55,13 +55,16 @@ export async function createUser(req, res) {
 
     try {
         const newUser = await userServices.registerUser(nome, nickname, email, senha);
-        return res.status(201)
+        return res.status(201).json({
+            message: "User created successfully",
+            user: newUser,
+        });
     } catch (err) {
         if (err.message === "User Already exists") {
             return res.status(409).json({ error: err.message });
         }
         console.error("Error creating user:", err.message);
-        return res.status(500).json({ error: "Internal Server Errorr" });
+        return res.status(500).json({ error: "Internal Server Error" });
     }
 }
 

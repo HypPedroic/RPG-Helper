@@ -11,13 +11,13 @@ export async function registerUser(userData) {
         nome: userData.nome,
         nickname: userData.nickname,
         email: userData.email,
-        senha_hash: userData.password,
+        senha: userData.password,
     });
 }
 
 export async function loginUser(credentials) {
     return api.post("/login", {
         email: credentials.email,
-        senha_hash: credentials.password,
+        senha: credentials.password,
     });
 }

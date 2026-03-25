@@ -14,6 +14,8 @@ export function FormsLogin() {
         isFormValid,
         isSubmitting,
         handleLogin,
+        successMessage,
+        errorMessage,
     } = useLoginValid();
 
     const handleSubmit = async (event) => {
@@ -30,6 +32,9 @@ export function FormsLogin() {
                 <p className="text-slate-400 text-center font-light">
                     Entre com suas credenciais para continuar sua aventura.
                 </p>
+
+                {successMessage && <p className="text-sm text-green-400 font-medium">{successMessage}</p>}
+                {errorMessage && <p className="text-sm text-red-400 font-medium">{errorMessage}</p>}
 
                 <form className="space-y-4" onSubmit={handleSubmit}>
                     
