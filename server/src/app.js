@@ -3,6 +3,7 @@ import cors from "cors";
 import morgan from "morgan";
 import helmet from "helmet";
 import userRouter from "./routes/userRoute.js";
+import authRouter from "./routes/authRoute.js";
 
 
 const app = express();
@@ -13,6 +14,7 @@ app.use(morgan("tiny"));
 app.use(helmet());
 
 app.use(userRouter);
+app.use(authRouter);
 
 app.use((req, res) => {
     res.status(404).json({ error: "Route not found" });

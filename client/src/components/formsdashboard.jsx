@@ -3,7 +3,7 @@ import { DashboardWelcome } from "./dashboardWelcome";
 import { DashboardRecentTables } from "./dashboardRecentTables";
 
 const EXAMPLE_USER = {
-    nome: "Aventureiro",
+    nickname: "Aventureiro",
 };
 
 const EXAMPLE_TABLES = [
@@ -20,7 +20,7 @@ export function FormsDashboard({ user = EXAMPLE_USER, tables = EXAMPLE_TABLES })
 
             <div className="relative mx-auto w-full max-w-6xl px-6 py-8 md:px-10 lg:px-12">
                 <DashboardNavbar />
-                <DashboardWelcome userName={user.nome} />
+                <DashboardWelcome userName={user.nickname} />
                 <DashboardRecentTables tables={tables} />
             </div>
         </div>

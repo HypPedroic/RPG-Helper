@@ -7,20 +7,52 @@ import Login from './pages/login.jsx'
 import Register from './pages/register.jsx'
 import Dashboard from './pages/dashbord.jsx'
 import Teste from './pages/teste.jsx'
+import { AuthProvider } from './context/authContext'
+import { PrivateRoute, PublicRoute } from './components/routeGuards.jsx'
 
 
 const root = createRoot(document.getElementById('root'))
 root.render(
     <StrictMode>
-        <BrowserRouter>
-            <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/teste" element={<Teste />} />
-            </Routes>
-        </BrowserRouter>
+        <AuthProvider>
+            <BrowserRouter>
+                <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route
+                        path="/login"
+                        element={
+                            <PublicRoute>
+                                <Login />
+                            </PublicRoute>
+                        }
+                    />
+                    <Route
+                        path="/register"
+                        element={
+                            <PublicRoute>
+                                <Register />
+                            </PublicRoute>
+                        }
+                    />
+                    <Route
+                        path="/dashboard"
+                        element={
+                            <PrivateRoute>
+                                <Dashboard />
+                            </PrivateRoute>
+                        }
+                    />
+                    <Route
+                        path="/teste"
+                        element={
+                            <PrivateRoute>
+                                <Teste />
+                            </PrivateRoute>
+                        }
+                    />
+                </Routes>
+            </BrowserRouter>
+        </AuthProvider>
     </StrictMode>
 )
 

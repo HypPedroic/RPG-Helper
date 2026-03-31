@@ -1,4 +1,5 @@
 import * as userRepository from "../repositories/userRepository.js";
+import AppError from "../utils/AppError.js";
 import bcrypt from "bcrypt";
 
 export async function getAllUsers() {
@@ -21,53 +22,27 @@ export async function getUserById(userId) {
     return user;
 }
 
-export async function loginUser(email, senha) {
-    let user;
-
-    if (!email || !senha) {
-        throw new Error("email and senha_hash are required");
-    }
-
-    try {
-        user = await userRepository.selectUserByEmail(email);
-        if (!user) {
-            throw new Error("user not found");
-        }
-    } catch (error) {
-        console.error("Error during login:", error);
-        throw new Error("Internal Server Error");
-    }
-
-    const successfulLogin = await bcrypt.compare(senha, user.senha_hash);
+export async function getUserByEmail(email) {
     
-    if(successfulLogin) {
-        return user;
-    } else {
-        throw new Error("Invalid credentials");
+    if (!email) {
+        return null;
     }
+
+    return await userRepository.selectUserByEmail(email);
     
 }
 
-export async function registerUser(nome, nickname, email, senha) {
-    if (!nome || !nickname || !email || !senha) {
-        throw new Error("All fields are required");
+export async function CreateUser(nome, nickname, email, senha_hash) {
+    
+    const {emailExists, nicknameExists} = await userRepository.selectUserByEmail(email, nickname);
+    if (emailExists) {
+        throw new AppError("Email already exists", 409);
+    }
+    if (nicknameExists) {
+        throw new AppError("Nickname already exists", 409);
     }
 
-    const senha_hash = await bcrypt.hash(senha, 10);
-
-    try {
-        const newUser = await userRepository.insertUser(nome, nickname, email, senha_hash);
-        if (!newUser) {
-            throw new Error("User Already exists");
-        }
-        return newUser;
-    } catch (error) {
-        console.error("Error creating user:", error);
-        if (error.message === "User Already exists") {
-            throw error;
-        }
-        throw new Error("Internal Server Error");
-    }
+    return await userRepository.insertUser(nome, nickname, email, senha_hash);
 
 }
 

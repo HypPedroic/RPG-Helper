@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect} from "react";
 import { useNavigate } from "react-router";
-import { loginUser } from "../services/api";
 import { isEmailValid } from "../utils/utils";
+import { useAuth } from "./useAuth";
 
 
 export function useLoginValid() {
@@ -11,6 +11,8 @@ export function useLoginValid() {
 	const [successMessage, setSuccessMessage] = useState("");
 	const [errorMessage, setErrorMessage] = useState("");
 	const navigate = useNavigate();
+
+	const { signIn } = useAuth();
 
 	const hasEmailError = email.trim() !== "" && !isEmailValid(email);
 	const isFormFilled = email.trim() !== "" && password.trim() !== "";
@@ -40,15 +42,18 @@ export function useLoginValid() {
 		try {
 			setIsSubmitting(true);
 			setErrorMessage("");
-			const response = await loginUser({ email, password });
-			console.log("Login successful:", response.data);
+
+			await signIn({ email, password });
 			setSuccessMessage("Login realizado com sucesso! Redirecionando...");
 			setTimeout(() => {
-				navigate("/teste", { state: { user: response.data } });
+				navigate("/dashboard");
 			}, 1500);
 		} catch (error) {
-			setErrorMessage("Falha no login. Verifique e-mail e senha.");
-			console.error("Login failed:", error);
+			const message =
+				error.response?.data?.message ||
+				error.response?.data?.error ||
+				"Ocorreu um erro durante o login.";
+			setErrorMessage(message);
 		} finally {
 			setIsSubmitting(false);
 		}
