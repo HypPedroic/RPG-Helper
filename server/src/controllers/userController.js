@@ -70,7 +70,7 @@ export async function createUser(req, res) {
 
 
 export async function deleteUser(req, res) {
-    const userId = req.params.id;
+    const userId = req.params.id ?? req.params.userId;
 
     try {
         const deletedUser = await userServices.deleteUser(userId);
@@ -85,7 +85,7 @@ export async function deleteUser(req, res) {
 }
 
 export async function updateUser(req, res) {
-    const userId = req.params.id;
+    const userId = req.params.id ?? req.params.userId;
     const { nome, nickname, email, senha } = req.body;
 
     if (!nome || !nickname || !email || !senha) {

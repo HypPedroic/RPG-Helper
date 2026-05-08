@@ -35,6 +35,17 @@ export async function selectUserByEmail(email) {
     }
 }
 
+export async function selectUserByNickname(nickname) {
+    try {
+        const res = await pool.query('SELECT nickname FROM users WHERE nickname = $1', [nickname]);
+
+        return res.rows[0];
+    } catch (err) {
+        console.error("Unexpected database error:", err.message);
+        throw err;
+    }
+}
+
 export async function updateUser(id, nome, nickname, email, senha_hash) {
     try {
         const res = await pool.query(

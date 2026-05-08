@@ -26,10 +26,9 @@ export async function login(email, senha) {
 
 export async function register(nome, nickname, email, senha) {
     
-    
-    senha_hash = await bcrypt.hash(senha, 10);
+    const senha_hash = await bcrypt.hash(senha, 10);
 
-    const newUser = await userRepository.insertUser(nome, nickname, email, senha_hash);
+    const newUser = await userRepository.CreateUser(nome, nickname, email, senha_hash);
 
     return newUser;
 }

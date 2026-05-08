@@ -9,5 +9,5 @@ export function PrivateRoute({ children }) {
 
 export function PublicRoute({ children }) {
     const { signed } = useAuth();
-    return signed ? <Navigate to="/dashboard" replace /> : children;
+    return signed ? <Navigate to="/minhas-mesas" replace /> : children;
 }

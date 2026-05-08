@@ -1,6 +1,6 @@
 export function DashboardRecentTables({ tables }) {
     return (
-        <section className="rounded-2xl border border-slate-700/50 bg-slate-900/70 p-6 backdrop-blur">
+        <section className="rounded-2xl ">
             <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-xl font-bold text-slate-100">Ultimas mesas acessadas</h3>
                 <span className="rounded-full border border-slate-600 px-3 py-1 text-xs uppercase tracking-[0.16em] text-slate-300">

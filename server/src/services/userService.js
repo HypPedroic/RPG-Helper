@@ -32,13 +32,26 @@ export async function getUserByEmail(email) {
     
 }
 
-export async function CreateUser(nome, nickname, email, senha_hash) {
+export async function getUserByNickname(nickname) {
     
-    const {emailExists, nicknameExists} = await userRepository.selectUserByEmail(email, nickname);
-    if (emailExists) {
+    if (!nickname) {
+        return null;
+    }
+
+    return await userRepository.selectUserByNickname(nickname);
+    
+}
+
+export async function CreateUser(nome, nickname, email, senha_hash) {
+    // Verifica se email já existe
+    const userWithEmail = await userRepository.selectUserByEmail(email);
+    if (userWithEmail) {
         throw new AppError("Email already exists", 409);
     }
-    if (nicknameExists) {
+
+    // Verifica se nickname já existe
+    const userWithNickname = await userRepository.selectUserByNickname(nickname);
+    if (userWithNickname) {
         throw new AppError("Nickname already exists", 409);
     }
 

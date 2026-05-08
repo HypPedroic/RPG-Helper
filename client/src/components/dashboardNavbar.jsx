@@ -1,4 +1,14 @@
+import { useLocation, useNavigate } from "react-router";
+
 export function DashboardNavbar() {
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    const isActive = (path) => location.pathname === path;
+    const baseButtonClass = "rounded-lg border px-4 py-2 transition";
+    const activeButtonClass = "border-cyan-400/30 bg-cyan-400/10 text-cyan-100";
+    const inactiveButtonClass = "border-slate-600 text-slate-300 hover:border-slate-400 hover:bg-slate-800";
+
     return (
         <nav className="mb-8 flex flex-col gap-4 rounded-2xl border border-slate-700/50 bg-slate-900/70 p-4 backdrop-blur md:flex-row md:items-center md:justify-between">
             <div>
@@ -7,16 +17,25 @@ export function DashboardNavbar() {
             </div>
 
             <div className="flex flex-wrap gap-2 text-sm font-medium">
-                <button className="rounded-lg border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-cyan-100 transition hover:border-cyan-300/60 hover:bg-cyan-400/20">
-                    Dashboard
-                </button>
-                <button className="rounded-lg border border-slate-600 px-4 py-2 text-slate-300 transition hover:border-slate-400 hover:bg-slate-800">
+                <button
+                    type="button"
+                    onClick={() => navigate("/minhas-mesas")}
+                    className={`${baseButtonClass} ${isActive("/minhas-mesas") ? activeButtonClass : inactiveButtonClass}`}
+                >
                     Minhas Mesas
                 </button>
-                <button className="rounded-lg border border-slate-600 px-4 py-2 text-slate-300 transition hover:border-slate-400 hover:bg-slate-800">
+                <button
+                    type="button"
+                    onClick={() => navigate("/personagens")}
+                    className={`${baseButtonClass} ${isActive("/personagens") ? activeButtonClass : inactiveButtonClass}`}
+                >
                     Personagens
                 </button>
-                <button className="rounded-lg border border-slate-600 px-4 py-2 text-slate-300 transition hover:border-slate-400 hover:bg-slate-800">
+                <button
+                    type="button"
+                    onClick={() => navigate("/perfil")}
+                    className={`${baseButtonClass} ${isActive("/perfil") ? activeButtonClass : inactiveButtonClass}`}
+                >
                     Perfil
                 </button>
             </div>

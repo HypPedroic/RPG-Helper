@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
-import { registerUser } from "../services/api";
+import { registerUser, checkEmailAvailability, checkNicknameAvailability } from "../services/api";
 import { isEmailValid } from "../utils/utils";
 
 function isPasswordStrong(passwordValue) {
@@ -20,12 +20,71 @@ export function useRegisterValid() {
 	const [successMessage, setSuccessMessage] = useState("");
 	const [errorMessage, setErrorMessage] = useState("");
 
+	// Estados para verificação em tempo real
+	const [isCheckingEmail, setIsCheckingEmail] = useState(false);
+	const [isCheckingNickname, setIsCheckingNickname] = useState(false);
+	const [emailAvailable, setEmailAvailable] = useState(null);
+	const [nicknameAvailable, setNicknameAvailable] = useState(null);
+
 	const hasEmailError = email.trim() !== "" && !isEmailValid(email);
 	const hasPasswordStrengthError = password.trim() !== "" && !isPasswordStrong(password);
 	const hasPasswordConfirmError = confirmPassword.trim() !== "" && !isPasswordConfirmValid(password, confirmPassword);
 
+	// Verificar email em tempo real (com debounce)
+	useEffect(() => {
+		if (!email.trim() || !isEmailValid(email)) {
+			setEmailAvailable(null);
+			setIsCheckingEmail(false);
+			return;
+		}
+
+		setIsCheckingEmail(true);
+		const timer = setTimeout(async () => {
+			try {
+				const response = await checkEmailAvailability(email);
+				setEmailAvailable(!response.data.exists);
+			} catch (error) {
+				console.error("Erro ao verificar email:", error);
+				setEmailAvailable(null);
+			} finally {
+				setIsCheckingEmail(false);
+			}
+		}, 500); // 500ms debounce
+
+		return () => clearTimeout(timer);
+	}, [email]);
+
+	// Verificar nickname em tempo real (com debounce)
+	useEffect(() => {
+		if (!nickname.trim()) {
+			setNicknameAvailable(null);
+			setIsCheckingNickname(false);
+			return;
+		}
+
+		setIsCheckingNickname(true);
+		const timer = setTimeout(async () => {
+			try {
+				const response = await checkNicknameAvailability(nickname);
+				setNicknameAvailable(!response.data.exists);
+			} catch (error) {
+				console.error("Erro ao verificar nickname:", error);
+				setNicknameAvailable(null);
+			} finally {
+				setIsCheckingNickname(false);
+			}
+		}, 500); // 500ms debounce
+
+		return () => clearTimeout(timer);
+	}, [nickname]);
+
 	const isFormFilled = [nome, nickname, email, password, confirmPassword].every((field) => field.trim() !== "");
-	const isFormValid = isFormFilled && !hasEmailError && !hasPasswordStrengthError && !hasPasswordConfirmError;
+	const isFormValid = isFormFilled && 
+		!hasEmailError && 
+		!hasPasswordStrengthError && 
+		!hasPasswordConfirmError &&
+		emailAvailable === true &&
+		nicknameAvailable === true;
 
 	// Limpar mensagens de sucesso após 5 segundos
 	useEffect(() => {
@@ -44,20 +103,28 @@ export function useRegisterValid() {
 	}, [errorMessage]);
 
 	const priorityWarning = useMemo(() => {
+		if (emailAvailable === false && isEmailValid(email)) {
+			return "Este e-mail já está registrado.";
+		}
+
+		if (nicknameAvailable === false) {
+			return "Este nickname já está em uso.";
+		}
+
 		if (hasEmailError) {
-			return "E-mail invalido: use apenas um @ e um dominio valido (ex: usuario@dominio.com).";
+			return "E-mail inválido: use apenas um @ e um domínio válido (ex: usuario@dominio.com).";
 		}
 
 		if (hasPasswordStrengthError) {
-			return "Senha invalida: use pelo menos 8 caracteres.";
+			return "Senha inválida: use pelo menos 8 caracteres.";
 		}
 
 		if (hasPasswordConfirmError) {
-			return "As senhas nao coincidem.";
+			return "As senhas não coincidem.";
 		}
 
 		return "";
-	}, [hasEmailError, hasPasswordStrengthError, hasPasswordConfirmError]);
+	}, [hasEmailError, hasPasswordStrengthError, hasPasswordConfirmError, emailAvailable, nicknameAvailable, email]);
 
 	const handleRegister = async () => {
 		if (!isFormValid || isSubmitting) {
@@ -76,9 +143,21 @@ export function useRegisterValid() {
 				setEmail("");
 				setPassword("");
 				setConfirmPassword("");
+				setEmailAvailable(null);
+				setNicknameAvailable(null);
 			}, 2000);
 		} catch (error) {
-			setErrorMessage("Falha ao registrar. Tente novamente.");
+			// Tratamento de erros específicos do servidor
+			const errorMessageText = error.response?.data?.error || "Falha ao registrar. Tente novamente.";
+			
+			if (errorMessageText.toLowerCase().includes("email")) {
+				setErrorMessage("Este email já está cadastrado.");
+			} else if (errorMessageText.toLowerCase().includes("nickname")) {
+				setErrorMessage("Este nickname já está em uso.");
+			} else {
+				setErrorMessage(errorMessageText);
+			}
+			
 			console.error("Register failed:", error);
 		} finally {
 			setIsSubmitting(false);
@@ -100,6 +179,10 @@ export function useRegisterValid() {
 		handleRegister,
 		successMessage,
 		errorMessage,
+		isCheckingEmail,
+		isCheckingNickname,
+		emailAvailable,
+		nicknameAvailable,
 	};
 }
 

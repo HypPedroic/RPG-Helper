@@ -46,7 +46,7 @@ export function useLoginValid() {
 			await signIn({ email, password });
 			setSuccessMessage("Login realizado com sucesso! Redirecionando...");
 			setTimeout(() => {
-				navigate("/dashboard");
+				navigate("/minhas-mesas");
 			}, 1500);
 		} catch (error) {
 			const message =

@@ -22,6 +22,10 @@ export function FormsRegister() {
         handleRegister,
         successMessage,
         errorMessage,
+        isCheckingEmail,
+        isCheckingNickname,
+        emailAvailable,
+        nicknameAvailable,
     } = useRegisterValid();
 
     const handleSubmit = async (event) => {
@@ -56,7 +60,10 @@ export function FormsRegister() {
                         label="Nickname" 
                         placeholder="Seu nickname" 
                         value={nickname} 
-                        onChange={(e) => setNickname(e.target.value)} 
+                        onChange={(e) => setNickname(e.target.value)}
+                        isValidating={isCheckingNickname}
+                        isAvailable={nicknameAvailable}
+                        errorMessage={nicknameAvailable === false ? "Este nickname já está em uso" : ""}
                     />
                     <Input
                         id="email"
@@ -66,7 +73,9 @@ export function FormsRegister() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         hasError={hasEmailError}
-                        errorMessage="E-mail invalido"
+                        isValidating={isCheckingEmail}
+                        isAvailable={emailAvailable}
+                        errorMessage={emailAvailable === false ? "Este email já está registrado" : hasEmailError ? "E-mail inválido" : ""}
                     />
                     <Input
                         id="password"

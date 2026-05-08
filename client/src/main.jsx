@@ -5,8 +5,10 @@ import './index.css'
 import Home from './pages/home.jsx'
 import Login from './pages/login.jsx'
 import Register from './pages/register.jsx'
-import Dashboard from './pages/dashbord.jsx'
-import Teste from './pages/teste.jsx'
+import Perfil from './pages/perfil.jsx'
+import MinhasMesas from './pages/minhasmesas.jsx'
+import Personagens from './pages/personagens.jsx'
+import Mesa from './pages/mesa.jsx'
 import { AuthProvider } from './context/authContext'
 import { PrivateRoute, PublicRoute } from './components/routeGuards.jsx'
 
@@ -35,18 +37,34 @@ root.render(
                         }
                     />
                     <Route
-                        path="/dashboard"
+                        path="/perfil"
                         element={
                             <PrivateRoute>
-                                <Dashboard />
+                                <Perfil />
                             </PrivateRoute>
                         }
                     />
                     <Route
-                        path="/teste"
+                        path="/minhas-mesas"
                         element={
                             <PrivateRoute>
-                                <Teste />
+                                <MinhasMesas />
+                            </PrivateRoute>
+                        }
+                    />
+                    <Route
+                        path="/personagens"
+                        element={
+                            <PrivateRoute>
+                                <Personagens />
+                            </PrivateRoute>
+                        }
+                    />
+                    <Route
+                        path="/mesa/:id"
+                        element={
+                            <PrivateRoute>
+                                <Mesa />
                             </PrivateRoute>
                         }
                     />
